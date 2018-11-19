@@ -1,0 +1,13 @@
+<html>
+    <head>
+        <title>Display Restaurant</title>
+    </head>
+    <body>
+        <H1>Showing <%= result.length %> restaurants</H1>
+        <ol>
+            <% result.forEach(function(restaurant) { %>
+        <li><a href=/showdetails?id=<%= restaurant._id %>><%= restaurant.name %></a></li>
+        <% });%>
+</ol>
+    </body>
+</html>

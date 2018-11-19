@@ -1,0 +1,29 @@
+<html>
+    <head>
+        <title>Restaurant Details</title>
+    </head>
+    <body>
+        <%if(result.photo!= ""){%>
+        <img src="data:<%= result.mimetype%>;base64, <%=result.photo%>"><br>
+        <%}%>
+        name: <%= result.name%> <br>
+        borough: <%= result.borough%> <br>
+        cuisine: <%= result.cuisine%> <br>
+        street: <%= result.address.street%> <br>
+        building: <%= result.address.building%> <br>
+        zipcode: <%= result.address.zipcode%> <br>
+        coord: <%= result.address.coord[0]%> , <%= result.address.coord[1]%> <br>
+        owner: <%= result.owner%> <br>
+        <ol>
+            <% result.grades.forEach(function(rating) { %>
+            <li><%= rating.score%> (<%= rating.user%>)</li>
+            <% });%>
+        </ol>
+
+        <%if(result.address.coord[0]!="" && result.address.coord[1]!=""){%>
+            <a href="/map?x=<%=result.address.coord[0]%>&y=<%=result.address.coord[1]%>">G MAP</a>
+        <%}%>
+
+           
+    </body>
+</html>
