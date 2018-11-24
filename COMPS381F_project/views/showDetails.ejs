@@ -23,7 +23,8 @@
         <%if(result.address.coord[0]!="" && result.address.coord[1]!=""){%>
             <a href="/map?x=<%=result.address.coord[0]%>&y=<%=result.address.coord[1]%>">G MAP</a>
         <%}%>
-
-           
+        <%if(result.owner===userid){%>
+        <a href='/updateRestaurant?_id=<%=result._id%>'>Update restaurant</a>  
+        <%}%>         
     </body>
 </html>

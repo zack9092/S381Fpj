@@ -6,7 +6,7 @@
         <H1>Showing <%= result.length %> restaurants</H1>
         <ol>
             <% result.forEach(function(restaurant) { %>
-        <li><a href=/showdetails?id=<%= restaurant._id %>><%= restaurant.name %></a></li>
+        <li><a href=/showdetails?_id=<%= restaurant._id %>><%= restaurant.name %></a></li>
         <% });%>
 </ol>
     </body>

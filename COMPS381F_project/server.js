@@ -29,7 +29,7 @@ app.get('/',function(req,res){
   if(req.session.userid!=null){
     res.render('home',{userid:req.session.userid});
   }else{
-    res.render('home',{userid:'Guest'});
+    res.redirect('/login');
   }
 });
 
@@ -136,12 +136,28 @@ app.post('/createRestaurant',function(req,res){
 });
 
 app.get('/updateRestaurant',function(req,res){
-  res.render('updateRestaurant',{name : "test"});
+  MongoClient.connect(mongourl,function(err,db) {
+    try {
+      assert.equal(err,null);
+    } catch (err) {
+      res.set({"Content-Type":"text/plain"});
+      res.status(500).end("MongoClient connect() failed!");
+    }
+    var o_id = new mongo.ObjectID(req.query._id);         
+    var query = {_id:o_id};
+    findDocument(db,query,"restaurant2",function(result) {
+        db.close();
+        console.log(result);
+        res.render('updateRestaurant',{result:result[0]});
+      });
+  }); 
+  
 })
 
 app.post('/updateRestaurant',function(req,res){
   var form = new formidable.IncomingForm();
   form.parse(req, function (err, fields, files) {
+    if(req.session.userid===fields.owner){
     //console.log(JSON.stringify(files));
     var filename = files.photo.path;
     if (files.photo.type) {
@@ -160,7 +176,9 @@ app.post('/updateRestaurant',function(req,res){
     new_r['name'] = fields.name;
     new_r['borough'] = fields.borough;
     new_r['cuisine'] = fields.cuisine;
-    if(data){
+    console.log(data);
+    if(data.length>0){
+      console.log("true");
       new_r['photo'] = new Buffer(data).toString('base64');
       new_r['mimetype'] = mimetype;
     }
@@ -169,18 +187,20 @@ app.post('/updateRestaurant',function(req,res){
                         zipcode : fields.zipcode,
                         coord : [fields.x,fields.y]
                       };
-    new_r['grades'] = {};
-    new_r['owner'] = req.session.userid;
+    //new_r['grade'] = [];                
 
-    console.log(new_r); // testing123
-    var query = {_id:"5bf295eeacf34e93f4ae6513"};
+    var o_id = new mongo.ObjectID(fields._id);         
+    var query = {_id:o_id};
     updateDocument(db,query,new_r,"restaurant2",function(result) {
         db.close();
-        req.session.userid = fields.userid;
         res.redirect('/');
       });
   }); 
 });
+}else{
+  console.log("NOT OWNER");
+  res.end("NOT OWNER");
+}
 });
 });
 
@@ -208,12 +228,12 @@ app.get('/showDetails',function(req,res){
       res.set({"Content-Type":"text/plain"});
       res.status(500).end("MongoClient connect() failed!");
     }     
-    var o_id = new mongo.ObjectID(req.query.id);  
+    var o_id = new mongo.ObjectID(req.query._id);  
     findDocument(db,{_id : o_id},"restaurant2",function(result) {
         db.close();
         console.log(result);
 
-        res.render('showDetails',{result:result[0]});
+        res.render('showDetails',{result:result[0],userid:req.session.userid});
       });
   }); 
 });
@@ -232,7 +252,6 @@ function insertDocument(db,r,collection,callback) {
     db.collection(collection).insertOne(r,function(err,result) {
       assert.equal(err,null);
       console.log("insert was successful!");
-      console.log(JSON.stringify(result));
       callback(result);
     });
   }
@@ -251,10 +270,9 @@ function insertDocument(db,r,collection,callback) {
   }
  
   function updateDocument(db,query,r,collection,callback) {
-    db.collection(collection).update(query,r,function(err,result) {
+    db.collection(collection).update(query,{$set:r},function(err,result) {
       assert.equal(err,null);
-      console.log("insert was successful!");
-      console.log(JSON.stringify(result));
+      console.log("update was successful!");
       callback(result);
     });
   }

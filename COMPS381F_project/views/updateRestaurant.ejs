@@ -4,35 +4,37 @@
     </head>
     <body>
         <form action="/updateRestaurant" method="POST" enctype="multipart/form-data">
+            <input type="hidden" name="_id" value="<%= result._id%>">
+            <input type="hidden" name="owner" value="<%= result.owner%>">
             restaurant_id:<br>
-            <input type="text" name="restaurant_id" value="<%= name%>">
+            <input type="text" name="restaurant_id" value="<%= result.restaurant_id%>">
             <br>
             name:<br>
-            <input type="text" name="name" required>
+            <input type="text" name="name" value="<%= result.name%>" required>
             <br>
             borough:<br>
-            <input type="text" name="borough">
+            <input type="text" name="borough" value="<%= result.borough%>">
             <br>
             cuisine:<br>
-            <input type="text" name="cuisine">
+            <input type="text" name="cuisine" value="<%= result.cuisine%>">
             <br>
             photo:<br>
-            <input type="file" name="photo">
+            <input type="file" name="photo" >
             <br>
             street:<br>
-            <input type="text" name="street">
+            <input type="text" name="street" value="<%= result.address.street%>">
             <br>
             building:<br>
-            <input type="text" name="building">
+            <input type="text" name="building" value="<%= result.address.building%>">
             <br>
             zipcode:<br>
-            <input type="text" name="zipcode">
+            <input type="text" name="zipcode" value="<%= result.address.zipcode%>">
             <br>
             X-coord:<br>
-            <input type="text" name="x">
+            <input type="text" name="x" value="<%= result.address.coord[0]%>">
             <br>
             Y-coord:<br>
-            <input type="text" name="y">
+            <input type="text" name="y" value="<%= result.address.coord[1]%>">
             <br>
             <input type="submit" value="Submit">
           </form> 
