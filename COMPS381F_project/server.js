@@ -14,6 +14,8 @@ var url  = require('url');
 
 app.set('view engine', 'ejs');
 app.listen(app.listen(process.env.PORT || 8099));
+// RESTFUL
+
 // Middleware__〆(￣ー￣ )
 app.use(session({
   name: 'session',
@@ -24,6 +26,78 @@ app.use(bodyParser.urlencoded({ extended: false }));
 
 app.use(bodyParser.json());
 
+app.get('/api/restaurant/read/:key/:value', function (req, res) {
+  var key = req.params.key;
+  if (key == "name" || key == "borough" || key == "cuisine") {
+    var str = '{"' + key + '":"' + req.params.value + '"}';
+    var criteria = JSON.parse(str);
+    MongoClient.connect(mongourl, function (err, db) {
+      try {
+        assert.equal(err, null);
+      } catch (err) {
+        res.status(500);
+        res.render("error",{message : "MongoClient connect() failed!"});
+      }
+      findDocument(db, criteria, "restaurant2", function (result) {
+        db.close();
+        res.status(200).json(result).end();
+
+
+      });
+    });
+  } else {
+    res.status(404).end("Error");
+  }
+});
+
+app.post('/api/restaurant/create', function (req, res) {
+  var new_r = req.body;
+  console.log(new_r);
+  var msg = {};
+  MongoClient.connect(mongourl, function (err, db) {
+    try {
+      assert.equal(err, null);
+    } catch (err) {
+      res.status(500);
+      res.render("error",{message : "MongoClient connect() failed!"});
+    }
+    if (new_r.hasOwnProperty("name") && new_r.hasOwnProperty("owner")) {
+      if(new_r['address']==null){
+        new_r['address'] = {
+          street: "",
+          building: "",
+          zipcode: "",
+          coord: ["", ""]
+        };
+      }
+      if(new_r['grades']==null){
+        new_r['grades'] = [];
+      }
+
+      insertDocument(db, new_r, "restaurant2", function (result) {
+        db.close();
+
+        if (result) {
+          msg.status = "ok";
+          msg._id = result.ops[0]._id;
+        } else {
+          msg.status = "failed";
+        }
+        console.log(msg);
+        res.status(200).json(msg).end();
+        //res.redirect('/');
+      });
+    } else {
+      msg.status = "failed";
+      console.log(msg);
+      res.status(200).json(msg).end();
+
+    }
+  });
+}
+);
+
+
 app.use(function(req,res,next) {
   var url_parts = url.parse(req.url);
   console.log(url_parts.pathname);
@@ -32,7 +106,7 @@ app.use(function(req,res,next) {
   }else{
     next();
   }
-  })
+  });
 
 
 // ヽ(・∀・)ﾉ url handling ヽ(・∀・)ﾉ
@@ -335,6 +409,7 @@ app.get('/search', function (req, res, next) {
         res.status(500);
         res.render("error",{message : "MongoClient connect() failed!"});
       }
+      
       findDocument(db, criteria, "restaurant2", function (result) {
         db.close();
         res.render('display', { result: result });
@@ -405,76 +480,6 @@ app.post('/rateRestaurant', function (req, res, next) {
   }
 });
 
-app.get('/api/restaurant/read/:key/:value', function (req, res) {
-  var key = req.params.key;
-  if (key == "name" || key == "borough" || key == "cuisine") {
-    var str = '{"' + key + '":"' + req.params.value + '"}';
-    var criteria = JSON.parse(str);
-    MongoClient.connect(mongourl, function (err, db) {
-      try {
-        assert.equal(err, null);
-      } catch (err) {
-        res.status(500);
-        res.render("error",{message : "MongoClient connect() failed!"});
-      }
-      findDocument(db, criteria, "restaurant2", function (result) {
-        db.close();
-        res.status(200).json(result).end();
-
-
-      });
-    });
-  } else {
-    res.status(404).end("Error");
-  }
-});
-
-app.post('/api/restaurant/create', function (req, res) {
-  var new_r = req.body;
-  console.log(new_r);
-  var msg = {};
-  MongoClient.connect(mongourl, function (err, db) {
-    try {
-      assert.equal(err, null);
-    } catch (err) {
-      res.status(500);
-      res.render("error",{message : "MongoClient connect() failed!"});
-    }
-    if (new_r.hasOwnProperty("name") && new_r.hasOwnProperty("owner")) {
-      if(new_r['address']==null){
-        new_r['address'] = {
-          street: "",
-          building: "",
-          zipcode: "",
-          coord: ["", ""]
-        };
-      }
-      if(new_r['grades']==null){
-        new_r['grades'] = [];
-      }
-
-      insertDocument(db, new_r, "restaurant2", function (result) {
-        db.close();
-
-        if (result) {
-          msg.status = "ok";
-          msg._id = result.ops[0]._id;
-        } else {
-          msg.status = "failed";
-        }
-        console.log(msg);
-        res.status(200).json(msg).end();
-        //res.redirect('/');
-      });
-    } else {
-      msg.status = "failed";
-      console.log(msg);
-      res.status(200).json(msg).end();
-
-    }
-  });
-}
-);
 
 
 // (ಠ o ಠ)¤=[]:::::> function list

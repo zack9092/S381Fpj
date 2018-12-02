@@ -1,7 +1,7 @@
 {
-    "name": "server",
+    "name": "S381F11660947project",
     "description": "COMPS381F project app",
-    "author": "Jerry Yip <b2e5421@gmail.com>, ",
+    "author": "Jerry Yip <b2e5421@gmail.com>, Kwong Ka Lai <>",
     "version": "0.0.1",
     "dependencies": {
         "express": "*",
