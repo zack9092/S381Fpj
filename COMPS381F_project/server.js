@@ -348,6 +348,9 @@ app.get('/rateRestaurant', function (req, res, next) {
     res.status(500);
     res.render("error",{message : "_id is null"});
     return;
+  }else if(req.query._id.length!=24){
+    res.status(500);
+    res.render("error",{message : "_id is invalid"});
   }
   if (req.session.userid != null) {
     var o_id = new mongo.ObjectID(req.query._id);
@@ -375,7 +378,10 @@ app.post('/rateRestaurant', function (req, res, next) {
         res.render("error",{message : "MongoClient connect() failed!"});
       }
       findDocument(db, query, "restaurant2", function (result) {
-
+        if(result.length==0){
+          res.status(500);
+          res.render("error",{message : "No such _id"});
+        }
         for (x in result[0].grades) {
           console.log(result[0].grades[x].user);
           if (result[0].grades[x].user == req.session.userid) {
