@@ -328,6 +328,9 @@ app.get('/showDetails', function (req, res, next) {
       db.close();
       console.log(result);
 
+      if(result[0].mimetype!=null && result[0].mimetype.indexOf("image") == -1 ){
+        result[0].photo = null;
+      }
       res.render('showDetails', { result: result[0], userid: req.session.userid });
     });
   });

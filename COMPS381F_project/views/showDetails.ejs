@@ -3,7 +3,7 @@
         <title>Restaurant Details</title>
     </head>
     <body>
-        <%if(result.photo!= ""){%>
+        <%if(result.photo!= null){%>
         <img src="data:<%= result.mimetype%>;base64, <%=result.photo%>"><br>
         <%}%>
         name: <%= result.name%> <br>
